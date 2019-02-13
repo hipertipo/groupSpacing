@@ -1,13 +1,22 @@
-from vanilla import FloatingWindow, RadioGroup, Button, CheckBox
+from vanilla import FloatingWindow, RadioGroup, SquareButton, CheckBox
 from mojo.events import addObserver, removeObserver
 from mojo.drawingTools import *
-from mojo.UI import CurrentSpaceCenter
+from mojo.UI import CurrentSpaceCenter, PutFile, GetFile
 from mojo.roboFont import OpenWindow
 from mojo.tools import IntersectGlyphWithLine
 from defconAppKit.windows.baseWindow import BaseWindowController
+import json
 
-PREFIX_LEFTSIDE = 'com.hipertipo.groupSpacing.leftSide.' # 'public.kern2.'
-PREFIX_RIGHTSIDE = 'com.hipertipo.groupSpacing.rightSide.' # 'public.kern1.'
+# ----------------
+# global variables
+# ----------------
+
+PREFIX_LEFTSIDE  = 'groupSpacing.left.'  # 'public.kern2.'
+PREFIX_RIGHTSIDE = 'groupSpacing.right.' # 'public.kern1.'
+
+# ---------
+# functions
+# ---------
 
 def getMargins(glyph, beam=None):
     '''
@@ -143,17 +152,70 @@ def getSiblings(glyph, side):
     else:
         return glyph.font.groups[groupLeftSide] if groupLeftSide is not None else []
 
+def getSpacingGroups(font):
+    '''
+    Get all spacing groups in the font as a dictionary.
+
+    >>> font = CurrentFont()
+    >>> spacingGroups = getSpacingGroups()
+    >>> print(spacingGroups.keys())
+
+    '''
+    return { groupName : font.groups[groupName] for groupName in font.groups.keys() if groupName.startswith(PREFIX_LEFTSIDE) or groupName.startswith(PREFIX_RIGHTSIDE) }
+
+def exportSpacingGroups(font, filePath):
+    '''
+    Export spacing groups to .json file.
+
+    >>> font = CurrentFont()
+    >>> filePath = PutFile(message='export spacing groups', fileName='spacingGroups.json')
+    >>> exportSpacingGroups(font, filePath)
+
+    '''
+    msg = 'export spacing groups to .json file'
+    spacingGroups = getSpacingGroups(font)
+    with open(filePath, 'w', encoding='utf-8') as f:
+        json.dump(spacingGroups, f, indent=2)
+
+def importSpacingGroups(font, filePath):
+    '''
+    Import spacing groups from .json file.
+
+    >>> font = CurrentFont()
+    >>> filePath = GetFile(message='import spacing groups', fileTypes=['json'])
+    >>> importSpacingGroups(font, filePath)
+
+    '''
+    msg = 'import spacing groups from .json file'
+    with open(filePath, 'r', encoding='utf-8') as f:
+        groups = json.load(f)
+    for group in groups:
+        font.groups[group] = groups[group]
+
+# -------
+# objects
+# -------
+
 class GroupSpacingWindow(BaseWindowController):
+
+    '''
+    A tool to enable group spacing in the Space Center.
+
+    - works with the selected glyph in the Space Center
+    - shows a preview of all other glyphs in the same spacing group
+    - transfer margins from current glyph to all glyphs in the same spacing group
+    - supports measurements using the current beam
+
+    '''
 
     def __init__(self):
         padding = 10
-        lineHeight = 22
+        lineHeight = 20
+        buttonHeight = 25
         width = 123
-        height = lineHeight * 3 + padding * 4
+        height = lineHeight*2 + buttonHeight*3 + padding*6
 
-        self.w = FloatingWindow(
-                (width, height),
-                title='spacing')
+        self.w = FloatingWindow((width, height), title='spacing')
 
         x = y = padding
         self.w.side = RadioGroup(
@@ -165,17 +227,31 @@ class GroupSpacingWindow(BaseWindowController):
         self.w.side.set(0)
 
         y += lineHeight + padding
-        self.w.copySpacingButton = Button(
-                (x, y, -padding, lineHeight),
+        self.w.copySpacingButton = SquareButton(
+                (x, y, -padding, buttonHeight),
                 'copy',
                 callback=self.buttonCallback,
                 sizeStyle='small')
 
-        y += lineHeight + padding
+        y += buttonHeight + padding
         self.w.useBeam = CheckBox(
                 (x, y, -padding, lineHeight),
                 'use beam',
                 callback=self.updateViewsCallback,
+                sizeStyle='small')
+
+        y += lineHeight + padding
+        self.w.exportButton = SquareButton(
+                (x, y, -padding, buttonHeight),
+                'export…',
+                callback=self.exportCallback,
+                sizeStyle='small')
+
+        y += buttonHeight + padding
+        self.w.importButton = SquareButton(
+                (x, y, -padding, buttonHeight),
+                'import…',
+                callback=self.importCallback,
                 sizeStyle='small')
 
         self.setUpBaseWindowBehavior()
@@ -188,7 +264,7 @@ class GroupSpacingWindow(BaseWindowController):
 
     @property
     def side(self):
-        '''The selected space group side.'''
+        '''The selected spacing group side.'''
         return ['left', 'right'][int(self.w.side.get())]
 
     @property
@@ -204,7 +280,9 @@ class GroupSpacingWindow(BaseWindowController):
             return
         return sp.beam()
 
+    # ---------
     # callbacks
+    # ---------
 
     def buttonCallback(self, sender):
         '''Copy margin from current glyph to other glyphs in left/right spacing class.'''
@@ -227,6 +305,18 @@ class GroupSpacingWindow(BaseWindowController):
 
         copyMargins(glyph, siblings, self.side, beam=self.beam)
 
+    def exportCallback(self, sender):
+        '''Export spacing groups to .json file.'''
+        font = CurrentFont()
+        filePath = PutFile(message='export spacing groups', fileName='spacingGroups.json')
+        exportSpacingGroups(font, filePath)
+
+    def importCallback(self, sender):
+        '''Import spacing groups from .json file.'''
+        font = CurrentFont()
+        filePath = GetFile(message='import spacing groups', fileTypes=['json'])
+        importSpacingGroups(font, filePath)
+
     def windowCloseCallback(self, sender):
         '''Remove observers when closing window.'''
         super().windowCloseCallback(sender)
@@ -238,9 +328,12 @@ class GroupSpacingWindow(BaseWindowController):
         if g is not None:
             g.changed()
 
+    # ---------
     # observers
+    # ---------
 
     def drawGlyphsInGroup(self, notification):
+        '''Display all glyphs belonging to the same spacing group in the background.'''
 
         glyph = notification['glyph']
 
@@ -253,27 +346,42 @@ class GroupSpacingWindow(BaseWindowController):
             return
 
         if not notification['selected']:
-            # mark other glyphs in group?
-            if glyph.name in siblings:
-                pass
             return
 
+        # get colors based on display mode
+        S = CurrentSpaceCenter()
+        if not S:
+            return
+        inverse = S.glyphLineView.getDisplayStates()['Inverse']
+        foreground = (1,) if inverse else (0,)
+        background = (0,) if inverse else (1,)
+
+        fill(*background)
+        stroke(*background)
+        drawGlyph(glyph)
+        stroke(None)
+
         alpha = 1.0 / len(siblings)
-        fill(0, alpha)
 
         for glyphName in siblings:
-            if glyphName == glyph.name:
-                continue
-
-            sibling = font[glyphName]
 
             save()
+
             if self.side == 'right':
-                dx = glyph.width - sibling.width
+                dx = glyph.width - font[glyphName].width
                 translate(dx, 0)
-            drawGlyph(sibling)
+
+            color = foreground + (0.6,) if glyphName == glyph.name else foreground + (alpha,)
+            fill(*color)
+            drawGlyph(font[glyphName])
+
             restore()
+
+# -------
+# testing
+# -------
 
 if __name__ == '__main__':
 
-    GroupSpacingWindow()
+    OpenWindow(GroupSpacingWindow)
+
