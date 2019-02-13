@@ -29,7 +29,7 @@ How to use it
 
 4. Click on one glyph: if this glyph belongs to a spacing group, the other glyphs in this group are displayed in the background.
 
-    ![](imgs/spaceCenterAfter.png)
+    ![](imgs/spaceCenterBefore.png)
 
 5. Use the preview to check if the other glyphs in the spacing group are aligned. Adjust the margins of the selected glyph if needed. 
 
