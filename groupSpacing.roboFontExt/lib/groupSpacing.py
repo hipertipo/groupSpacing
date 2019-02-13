@@ -213,11 +213,18 @@ class GroupSpacingWindow(BaseWindowController):
         lineHeight = 20
         buttonHeight = 25
         width = 123
-        height = lineHeight*2 + buttonHeight*3 + padding*6
+        height = lineHeight*2 + buttonHeight*4 + padding*7
 
         self.w = FloatingWindow((width, height), title='spacing')
 
         x = y = padding
+        self.w.makeGroupButton = SquareButton(
+                (x, y, -padding, buttonHeight),
+                'make group',
+                callback=self.makeGroupCallback,
+                sizeStyle='small')
+
+        y += buttonHeight + padding
         self.w.side = RadioGroup(
                 (x, y, -padding, lineHeight),
                 ['left', 'right'],
@@ -229,8 +236,8 @@ class GroupSpacingWindow(BaseWindowController):
         y += lineHeight + padding
         self.w.copySpacingButton = SquareButton(
                 (x, y, -padding, buttonHeight),
-                'copy',
-                callback=self.buttonCallback,
+                'copy margin',
+                callback=self.copySpacingCallback,
                 sizeStyle='small')
 
         y += buttonHeight + padding
@@ -284,7 +291,22 @@ class GroupSpacingWindow(BaseWindowController):
     # callbacks
     # ---------
 
-    def buttonCallback(self, sender):
+    def makeGroupCallback(self, sender):
+        '''Make a new spacing group with the selected glyph.'''
+
+        glyph = CurrentGlyph()
+        if not glyph:
+            return
+
+        if glyph.font is None:
+            return
+
+        prefix = PREFIX_LEFTSIDE if self.side == 'left' else PREFIX_RIGHTSIDE
+        groupName = prefix + glyph.name
+        if not groupName in glyph.font.groups:
+            glyph.font.groups[groupName] = [glyph.name]
+
+    def copySpacingCallback(self, sender):
         '''Copy margin from current glyph to other glyphs in left/right spacing class.'''
 
         glyph = CurrentGlyph()
