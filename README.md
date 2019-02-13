@@ -13,10 +13,5 @@ A RoboFont extension to enable group spacing in the Space Center.
 
 ![](imgs/spaceCenterSelected.png)
 
-Name spacing groups using the standard prefixes:
-
-- `groupSpacing.left.`
-- `groupSpacing.right.`
-
 [Groups Editor]: http://robofont.com/documentation/workspace/groups-editor/
 [Space Center]: http://robofont.com/documentation/workspace/space-center
