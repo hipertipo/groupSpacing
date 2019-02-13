@@ -1,7 +1,7 @@
 Group Spacing
 =============
 
-A simple tool to enable group spacing in RoboFont.
+A RoboFont extension to enable group spacing in the Space Center.
 
 ![](imgs/groupSpacingWindow.png)
 
