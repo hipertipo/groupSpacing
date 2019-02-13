@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>addToMenu</key>
+	<array>
+		<dict>
+			<key>path</key>
+			<string>groupSpacing.py</string>
+			<key>preferredName</key>
+			<string>Group Spacing</string>
+			<key>shortKey</key>
+			<string></string>
+		</dict>
+	</array>
+	<key>developer</key>
+	<string>Gustavo Ferreira</string>
+	<key>developerURL</key>
+	<string>http://github.com/gferreira</string>
+	<key>html</key>
+	<false/>
+	<key>name</key>
+	<string>groupSpacing</string>
+	<key>requiresVersionMajor</key>
+	<string>3</string>
+	<key>requiresVersionMinor</key>
+	<string>2</string>
+	<key>timeStamp</key>
+	<real>1550079900.3272541</real>
+	<key>version</key>
+	<string>0.1</string>
+</dict>
+</plist>
