@@ -5,6 +5,3 @@ description: Enable group spacing in the Space Center.
 developer: Gustavo Ferreira
 developerURL: http://github.com/gferreira
 tags: [ spacing ]
-infoPath: http://github.com/gferreira/groupSpacing/blob/master/groupSpacing.roboFontExt/info.plist
-zipPath: http://github.com/gferreira/groupSpacing/archive/master.zip
-icon: http://github.com/gferreira/groupSpacing/raw/master/groupSpacingMechanicIcon.png
