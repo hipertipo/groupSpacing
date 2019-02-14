@@ -20,7 +20,7 @@
 	<key>html</key>
 	<false/>
 	<key>name</key>
-	<string>groupSpacing</string>
+	<string>GroupSpacing</string>
 	<key>requiresVersionMajor</key>
 	<string>3</string>
 	<key>requiresVersionMinor</key>
