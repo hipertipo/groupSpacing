@@ -11,7 +11,7 @@ A RoboFont extension to enable group spacing in the Space Center.
 - optionally use the Space Center’s beam to measure margins
 - import/export spacing groups to json file
 
-<img src='imgs/spaceCenterSelected.png' width=100%
+![](imgs/spaceCenterSelected.png)
 
 [Groups Editor]: http://robofont.com/documentation/workspace/groups-editor/
 [Space Center]: http://robofont.com/documentation/workspace/space-center
