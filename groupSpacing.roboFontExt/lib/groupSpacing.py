@@ -87,7 +87,7 @@ def getGroupsForGlyph(glyph):
 
     return groupLeftSide, groupRightSide
 
-def copyMargins(glyph, siblings, side, beam=None, verbose=True):
+def copyMargins(glyph, siblings, side, beam=None, allLayers=False, verbose=True):
     '''
     Copy left or right margin from one glyph to all other glyphs in the same spacing group.
 
@@ -107,29 +107,53 @@ def copyMargins(glyph, siblings, side, beam=None, verbose=True):
     '''
     left, right = getMargins(glyph, beam)
 
+    font = glyph.font
+    if not font:
+        return
+
     if verbose:
-        print('%s (%s) → %s' % (glyph.name, 'L' if side == 'left' else 'R', ' '.join(siblings)))
+        print(f'source glyph: {glyph.name} ({side})')
 
     for glyphName in siblings:
 
-        sibling = glyph.font[glyphName]
+        sibling = font[glyphName]
+
         if sibling.bounds is None:
             continue
 
+        if glyph == sibling:
+            continue
+
         sibling.prepareUndo()
+        print(f'copying {side} margin to {sibling}...')
 
         if beam is None:
+
             if side == 'right':
+                difference = glyph.rightMargin - sibling.rightMargin
                 sibling.rightMargin = glyph.rightMargin
-            else: # left
+            else: # left side
+                difference = glyph.leftMargin - sibling.leftMargin
                 sibling.leftMargin = glyph.leftMargin
+
+            if allLayers:
+                for layerName in font.layerOrder:
+                    print(layerName)
+                    if layerName == glyph.layer.name:
+                        continue
+                    layerGlyph = glyph.getLayer(layerName)
+                    print(layerGlyph)
+                    if side == 'right':
+                        layerGlyph.rightMargin += difference
+                    else: # left side
+                        layerGlyph.leftMargin += difference
 
         else:
             leftSibling, rightSibling = getMargins(sibling, beam)
             if side == 'right':
                 difference = right - rightSibling
                 sibling.rightMargin += difference
-            else: # left
+            else: # left side
                 difference = left - leftSibling
                 sibling.leftMargin += difference
 
@@ -148,10 +172,13 @@ def getSiblings(glyph, side):
     groupLeftSide, groupRightSide = getGroupsForGlyph(glyph)
 
     if side == 'right':
-        siblings = glyph.font.groups[groupRightSide] if groupRightSide is not None else []
+        siblings = list(glyph.font.groups[groupRightSide]) if groupRightSide is not None else []
     else:
-        siblings = glyph.font.groups[groupLeftSide] if groupLeftSide is not None else []
+        siblings = list(glyph.font.groups[groupLeftSide]) if groupLeftSide is not None else []
 
+    # if glyph.name in siblings:
+    #     siblings.remove(glyph.name)
+    
     return siblings
 
 def getSpacingGroups(font):
@@ -215,7 +242,7 @@ class GroupSpacingWindow(BaseWindowController):
         lineHeight = 20
         buttonHeight = 25
         width = 123
-        height = lineHeight * 2 + buttonHeight * 4 + padding * 7
+        height = lineHeight * 3 + buttonHeight * 4 + padding * 7
 
         self.w = FloatingWindow((width, height), title='spacing')
 
@@ -246,6 +273,13 @@ class GroupSpacingWindow(BaseWindowController):
         self.w.useBeam = CheckBox(
                 (x, y, -padding, lineHeight),
                 'use beam',
+                callback=self.updateViewsCallback,
+                sizeStyle='small')
+
+        y += lineHeight
+        self.w.allLayers = CheckBox(
+                (x, y, -padding, lineHeight),
+                'all layers',
                 callback=self.updateViewsCallback,
                 sizeStyle='small')
 
@@ -280,6 +314,11 @@ class GroupSpacingWindow(BaseWindowController):
     def useBeam(self):
         '''Use or not the beam to measure margins. Value taken from the checkbox.'''
         return self.w.useBeam.get()
+
+    @property
+    def allLayers(self):
+        '''Set margins in all layers. Value taken from the checkbox.'''
+        return self.w.allLayers.get()
 
     @property
     def beam(self):
@@ -327,7 +366,8 @@ class GroupSpacingWindow(BaseWindowController):
         if not siblings:
             return
 
-        copyMargins(glyph, siblings, self.side, beam=self.beam)
+        beam = self.beam if self.useBeam else None
+        copyMargins(glyph, siblings, self.side, beam=beam, allLayers=self.allLayers)
 
     def exportCallback(self, sender):
         '''Export spacing groups to .json file.'''
@@ -408,4 +448,3 @@ class GroupSpacingWindow(BaseWindowController):
 if __name__ == '__main__':
 
     OpenWindow(GroupSpacingWindow)
-
