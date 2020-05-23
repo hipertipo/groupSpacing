@@ -3,15 +3,13 @@ Group Spacing
 
 A RoboFont extension to enable group spacing in the Space Center.
 
-![](imgs/groupSpacingWindow.png)
+![](imgs/groupSpacing.png)
 
-- create left and right spacing groups using the [Groups Editor]
-- current glyph in [Space Center] shows all other glyphs in the same spacing group
-- transfer margins from selected glyph to all other glyphs in group
-- optionally use the Space Center’s beam to measure margins
-- import/export spacing groups to json file
-
-![](imgs/spaceCenterSelected.png)
+- create left/right kerning groups using the [Groups Editor]
+- the selected glyph in [Space Center] displays an overlay of all glyphs in the same left/right kerning group
+- use the button to transfer margins from the selected glyph to all other glyphs in the group
+- optionally use the Space Center’s beam to measure margins and/or copy margins to all glyph layers
+- spacing groups can be imported from and exported to `.json` format
 
 [Groups Editor]: http://robofont.com/documentation/workspace/groups-editor/
 [Space Center]: http://robofont.com/documentation/workspace/space-center
