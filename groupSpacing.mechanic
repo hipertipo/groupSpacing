@@ -4,4 +4,5 @@ extensionPath: groupSpacing.roboFontExt
 description: Enable group spacing in the Space Center.
 developer: Gustavo Ferreira
 developerURL: http://github.com/gferreira
+icon: http://github.com/gferreira/groupSpacing/raw/master/GroupSpacingMechanicIcon.png
 tags: [ spacing ]

@@ -214,9 +214,10 @@ class GroupSpacingWindow(BaseWindowController):
 
     def updateViewsCallback(self, sender):
         '''Update the Space Center.'''
-        g = CurrentGlyph()
-        if g is not None:
-            g.changed()
+        S = CurrentSpaceCenter()
+        if not S:
+            return
+        S.glyphLineView.refresh()
 
     # ---------
     # observers
@@ -253,6 +254,16 @@ class GroupSpacingWindow(BaseWindowController):
             stroke(R, G, B, A)
             drawGlyph(glyph)
             restore()
+
+        # draw side indicator
+        save()
+        stroke(1, 0, 0)
+        strokeWidth(10)
+        xPos = 0 if self.side == 'left' else glyph.width
+        yMin = font.info.descender
+        yMax = yMin + font.info.unitsPerEm
+        line((xPos, yMin), (xPos, yMax))
+        restore()
 
         # draw glyph and siblings
         R, G, B, A = getDefault("spaceCenterGlyphColor") if not inverse else getDefault("spaceCenterBackgroundColor")
