@@ -3,7 +3,7 @@ Group Spacing
 
 A RoboFont extension to enable group spacing in the Space Center.
 
-![](imgs/GroupSpacing.png)
+![](imgs/GroupSpacing_.png)
 
 Supports importing and exporting spacing groups to `.groupSpacing` files.
 
