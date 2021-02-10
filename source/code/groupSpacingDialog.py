@@ -2,7 +2,7 @@ from importlib import reload
 import groupSpacingLib
 reload(groupSpacingLib)
 
-from vanilla import HUDFloatingWindow, RadioGroup, Button, CheckBox, Slider, TextBox
+from vanilla import FloatingWindow, RadioGroup, Button, CheckBox, Slider, TextBox
 from mojo.events import addObserver, removeObserver
 from mojo.drawingTools import *
 from mojo.roboFont import CurrentGlyph, CurrentFont
@@ -30,7 +30,7 @@ class GroupSpacingWindow(BaseWindowController):
         width = 123
         height  = lineHeight * 6 + buttonHeight * 4 + padding * 9
 
-        self.w = HUDFloatingWindow((width, height), title='group spacing')
+        self.w = FloatingWindow((width, height), title='spacing')
 
         x = y = padding
         self.w.makeGroupButton = Button(
@@ -107,6 +107,7 @@ class GroupSpacingWindow(BaseWindowController):
 
         addObserver(self, "drawGlyphsInGroup", "spaceCenterDraw")
 
+        self.w.getNSWindow().setTitlebarAppearsTransparent_(True)
         self.w.open()
 
     # dynamic attrs.
@@ -281,4 +282,3 @@ class GroupSpacingWindow(BaseWindowController):
             fill(*color)
             drawGlyph(g)
             restore()
-

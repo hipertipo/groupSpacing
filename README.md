@@ -3,25 +3,28 @@ Group Spacing
 
 A RoboFont extension to enable group spacing in the Space Center.
 
-![](imgs/groupSpacing.png)
+![](imgs/GroupSpacing.png)
 
-#### define groups
+Supports importing and exporting spacing groups to `.groupSpacing` files.
 
-create left/right kerning groups using the [Groups Editor]
 
-#### view siblings
+How to use the tool
+-------------------
 
-the selected glyph in [Space Center] shows all other glyphs in the same left/right kerning group
+### 1. Define groups
 
-#### copy margin
+Create left/right kerning groups using the [Groups Editor].
 
-transfer the left/right margin of the current glyph to all other glyphs in the group
+### 2. Visualize siblings
 
-optionally, measure margins using the beam
+Select a glyph in the [Space Center] and see all other glyphs in the same left/right spacing group.
 
-#### import / export
+### 3. Copy margins
 
-import and export spacing groups to `.groupSpacing` files
+Transfer the left/right margin of the current glyph to all other glyphs in the group.
+
+Optionally, measure margins using the beam.
+
 
 [Groups Editor]: http://robofont.com/documentation/workspace/groups-editor/
 [Space Center]: http://robofont.com/documentation/workspace/space-center
